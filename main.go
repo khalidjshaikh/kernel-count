@@ -3,6 +3,7 @@ package main
 /*
 #cgo LDFLAGS: -LOpenCL -lOpenCL
 #cgo CFLAGS: -IOpenCL
+#define CL_TARGET_OPENCL_VERSION 120
 #include <CL/cl.h>
 #include <stdlib.h>
 #include <stdio.h>
