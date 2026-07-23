@@ -52,15 +52,16 @@ import (
 )
 
 const kernelSource = `
-__kernel void count(__global ulong *output, ulong iterations) {
-    ulong id = get_global_id(0);
-    ulong sum = id;
+__kernel void count(__global float *output, ulong iterations) {
+    float id = (float)get_global_id(0);
+    float sum = id;
     for (ulong i = 0; i < iterations; i++) {
-        sum += (i * 7UL) ^ (i >> 3UL);
-        sum ^= (sum >> 17UL);
-        sum += (sum << 11UL);
+        float fi = (float)i;
+        sum += fi * 7.0f;
+        sum -= fi * 3.0f;
+        sum = sum * 0.5f + 1.0f / (fi + 1.0f);
     }
-    output[id] = sum;
+    output[(int)id] = sum;
 }
 `
 
@@ -139,7 +140,7 @@ func main() {
 	iterations := uint64(1 << 10) // 1024 per work-item
 	globalSizes := []int{1 << 12, 1 << 14, 1 << 16, 1 << 18, 1 << 20}
 	maxGlobal := 1 << 20
-	outBuf := C.clCreateBuffer(context, C.CL_MEM_WRITE_ONLY, C.size_t(maxGlobal*8), nil, &err)
+	outBuf := C.clCreateBuffer(context, C.CL_MEM_WRITE_ONLY, C.size_t(maxGlobal*4), nil, &err)
 	check(err, "clCreateBuffer")
 	defer C.clReleaseMemObject(outBuf)
 
