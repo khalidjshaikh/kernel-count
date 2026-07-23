@@ -1,8 +1,9 @@
 package main
 
 /*
-#cgo LDFLAGS: -framework OpenCL
-#include <OpenCL/opencl.h>
+#cgo LDFLAGS: -LOpenCL -lOpenCL
+#cgo CFLAGS: -IOpenCL
+#include <CL/cl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -156,8 +157,8 @@ func main() {
 	var bestTime uint64
 
 	for _, gs := range globalSizes {
-		lsList := []int{64, 128, 256}
-		if gs < 64 {
+		lsList := []int{64, 128, 256, 512}
+		   if gs < 64 {
 			lsList = []int{gs}
 		}
 		for _, ls := range lsList {
@@ -212,8 +213,8 @@ func main() {
 	fmt.Println()
 	fmt.Println("=== Sustained (10 runs, best config) ===")
 	for _, gs := range globalSizes {
-		for _, ls := range []int{64, 128, 256} {
-			if ls > gs || gs%ls != 0 {
+		for _, ls := range []int{64, 128, 256, 512} {
+		    if ls > gs || gs%ls != 0 {
 				continue
 			}
 			cfg := fmt.Sprintf("global=%d local=%d", gs, ls)
