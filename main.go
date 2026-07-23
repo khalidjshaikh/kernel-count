@@ -1,8 +1,9 @@
 package main
 
 /*
-#cgo LDFLAGS: -framework OpenCL
-#include <OpenCL/opencl.h>
+#cgo LDFLAGS: -L. -lOpenCL
+#define CL_TARGET_OPENCL_VERSION 120
+#include "CL/cl.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,7 +66,7 @@ __kernel void count(__global ulong *output, ulong iterations) {
 
 func check(err C.cl_int, msg string) {
 	if err != C.CL_SUCCESS {
-		fmt.Fprintf(os.Stderr, "ERROR: %s: %s (%d)\n", msg, C.ocl_errstr(err), int(err))
+		fmt.Fprintf(os.Stderr, "ERROR: %s: %s (%d)\n", msg, C.GoString(C.ocl_errstr(err)), int(err))
 		os.Exit(1)
 	}
 }
@@ -156,7 +157,7 @@ func main() {
 	var bestTime uint64
 
 	for _, gs := range globalSizes {
-		lsList := []int{64, 128, 256}
+		lsList := []int{64, 128, 256, 512, 1024}
 		if gs < 64 {
 			lsList = []int{gs}
 		}
@@ -212,7 +213,7 @@ func main() {
 	fmt.Println()
 	fmt.Println("=== Sustained (10 runs, best config) ===")
 	for _, gs := range globalSizes {
-		for _, ls := range []int{64, 128, 256} {
+		for _, ls := range []int{64, 128, 256, 512, 1024} {
 			if ls > gs || gs%ls != 0 {
 				continue
 			}
